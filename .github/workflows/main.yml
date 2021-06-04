@@ -17,7 +17,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: django-test
+          POSTGRES_DB: djangotest
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -40,6 +40,10 @@ jobs:
       - name: Install project dependencies
         run: pipenv install --system --deploy --ignore-pipfile
       - name: Run Migrations
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/djangotest
+          SECRET_KEY:  django-secretkey-jdpjjQpkSjk75A7qw
+          DEBUG: 1
         run: python manage.py migrate
       - name: Running Test
         run: python manage.py test
