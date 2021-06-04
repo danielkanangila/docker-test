@@ -1,0 +1,47 @@
+name: Django CI/CD
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: django-test
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Cache dependency
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Setup python environment
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Install pipenv
+        run: pip install pipenv
+      - name: Install dependencies
+        run: pipenv install --system --deploy --ignore-pipfile
+      - name: Check syntax
+        run: pycodestyle --statistics .
+      - name: Run Migrations
+        run: python manage.py migrate
+      - name: Running Test
+        run: python manage.py test
