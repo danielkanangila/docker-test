@@ -36,11 +36,9 @@ jobs:
         with:
           python-version: '3.x'
       - name: Install pipenv and testing tool
-        run: pip install pipenv pycodestyle
+        run: pip install pipenv
       - name: Install project dependencies
         run: pipenv install --system --deploy --ignore-pipfile
-      - name: Check syntax
-        run: pycodestyle --statistics .
       - name: Run Migrations
         run: python manage.py migrate
       - name: Running Test
